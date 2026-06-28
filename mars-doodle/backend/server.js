@@ -1,4 +1,5 @@
 require("dotenv").config();
+const roomRoutes = require("./routes/roomRoutes");
 
 const express = require("express");
 const mongoose = require("mongoose");
@@ -19,6 +20,7 @@ app.use(express.json());
 
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/room", roomRoutes);
 
 // Test Route
 app.get("/", (req, res) => {
