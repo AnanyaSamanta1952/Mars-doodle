@@ -1,0 +1,59 @@
+.dashboard {
+    min-height: 100vh;
+    background: #f3f4f6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.dashboard-card {
+    width: 450px;
+    background: white;
+    padding: 35px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,.1);
+    text-align: center;
+}
+
+.dashboard-card h1 {
+    margin-bottom: 10px;
+}
+
+.dashboard-card p {
+    margin-bottom: 25px;
+    color: #555;
+}
+
+.dashboard-card input {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+}
+
+.dashboard-card button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: #2563eb;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.dashboard-card button:hover {
+    background: #1d4ed8;
+}
+
+.logout-btn{
+    background:#dc2626 !important;
+}
+
+.logout-btn:hover{
+    background:#b91c1c !important;
+}

@@ -17,6 +17,9 @@ module.exports = (io) => {
         socket.on("draw", (data) => {
             socket.to(data.roomCode).emit("drawing", data);
         });
+        socket.on("clear-canvas", (roomCode) => {
+            io.to(roomCode).emit("canvas-cleared");
+        });
 
         socket.on("disconnect", () => {
             console.log(`User Disconnected: ${socket.id}`);

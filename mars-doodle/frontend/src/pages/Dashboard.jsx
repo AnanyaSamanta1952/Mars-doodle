@@ -1,25 +1,82 @@
-import { useEffect } from "react";
-import socket from "../socket/socket";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../services/api";
+import "../styles/dashboard.css";
 
 export default function Dashboard() {
-    const roomCode = "A5DC1J";
-    useEffect(() => {
-        socket.emit("join-room", roomCode);
-        socket.on("player-joined", (data) => {
-            console.log("Player Joined!");
-            console.log(data.message);
-            console.log(data.socketId);
-        });
-        return () => {
-            socket.off("player-joined");
-        };
-    }, []);
+    const navigate = useNavigate();
+    const user = JSON.parse(localStorage.getItem("user"));
+    const [roomCode, setRoomCode] = useState("");
+    const createRoom = async () => {
+        try {
+            const res = await api.post("/room/create");
+            localStorage.setItem(
+                "roomCode",
+                res.data.roomCode
+            );
+            navigate("/lobby");
+        } catch (err) {
+            alert(err.response?.data?.message);
+        }
+    };
+
+    const joinRoom = async () => {
+        try {
+            await api.post("/room/join", {
+                roomCode
+            });
+            localStorage.setItem(
+                "roomCode",
+                roomCode
+            );
+            navigate("/lobby");
+        } catch (err) {
+            alert(err.response?.data?.message);
+        }
+    };
+
+    const logout = () => {
+        localStorage.clear();
+        navigate("/");
+    };
 
     return (
-        <div>
-            <h1>Dashboard</h1>
-            <p>Joined Room: {roomCode}</p>
+
+        <div className="dashboard">
+            <div className="dashboard-card">
+                <h1>🚀 Mars Doodle</h1>
+                <p>
+                    Welcome,
+                    <strong> {user.username}</strong>
+                </p>
+
+                <button onClick={createRoom}>
+                    Create Room
+                </button>
+
+                <hr
+                    style={{
+                        margin:"25px 0"
+                    }}
+                />
+
+                <input
+                    placeholder="Enter Room Code"
+                    value={roomCode}
+                    onChange={(e)=>setRoomCode(e.target.value.toUpperCase())}
+                />
+
+                <button onClick={joinRoom}>
+                    Join Room
+                </button>
+
+                <button
+                    className="logout-btn"
+                    onClick={logout}
+                >
+                    Logout
+                </button>
+            </div>
         </div>
     );
-
 }

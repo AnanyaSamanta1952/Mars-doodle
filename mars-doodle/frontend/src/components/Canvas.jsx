@@ -1,22 +1,34 @@
 import { useEffect, useRef, useState } from "react";
 import socket from "../socket/socket";
 
-export default function Canvas() {
+export default function Canvas({
+    color,
+    brushSize,
+    eraser
+}) {
     const canvasRef = useRef(null);
     const [drawing, setDrawing] = useState(false);
     useEffect(() => {
         const canvas = canvasRef.current;
         const ctx = canvas.getContext("2d");
-        ctx.lineWidth = 3;
+        ctx.lineWidth = brushSize;
         ctx.lineCap = "round";
-        ctx.strokeStyle = "black";
+        ctx.strokeStyle = eraser ? "#ffffff" : color;
         socket.on("drawing", ({ x0, y0, x1, y1 }) => {
             ctx.beginPath();
             ctx.moveTo(x0, y0);
             ctx.lineTo(x1, y1);
             ctx.stroke();
         });
-        return () => socket.off("drawing");
+        socket.on("canvas-cleared", () => {
+            const canvas = canvasRef.current;
+            const ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        });
+        return () => {
+            socket.off("drawing");
+            socket.off("canvas-cleared");
+        };
     }, []);
 
     const startDrawing = (e) => {
@@ -55,12 +67,14 @@ export default function Canvas() {
             canvas.lastY = y;
             return;
         }
+        ctx.lineWidth = brushSize;
+        ctx.strokeStyle = eraser ? "#ffffff" : color;
         ctx.beginPath();
         ctx.moveTo(canvas.lastX, canvas.lastY);
         ctx.lineTo(x, y);
         ctx.stroke();
         socket.emit("draw", {
-            roomCode: "A5DC1J",
+            roomCode: localStorage.getItem("roomCode"),
             x0: canvas.lastX,
             y0: canvas.lastY,
             x1: x,
