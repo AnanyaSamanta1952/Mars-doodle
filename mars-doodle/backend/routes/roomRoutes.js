@@ -5,11 +5,14 @@ const authMiddleware = require("../middleware/authMiddleware");
 
 const {
     createRoom,
-    joinRoom
+    joinRoom,
+    getRoom,
+    startGame
 } = require("../controllers/roomController");
 
 router.post("/create", authMiddleware, createRoom);
-
 router.post("/join", authMiddleware, joinRoom);
+router.get("/:roomCode", getRoom);
+router.post("/start", authMiddleware, startGame);
 
 module.exports = router;
