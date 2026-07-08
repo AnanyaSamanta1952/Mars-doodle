@@ -1,3 +1,6 @@
+const Room = require("../models/Room");
+const words = require("../utils/words");
+
 module.exports = (io) => {
     io.on("connection", (socket) => {
         console.log(`User Connected: ${socket.id}`);
@@ -20,9 +23,16 @@ module.exports = (io) => {
         socket.on("clear-canvas", (roomCode) => {
             io.to(roomCode).emit("canvas-cleared");
         });
-
+        
         socket.on("disconnect", () => {
             console.log(`User Disconnected: ${socket.id}`);
+        });
+        socket.on("chat-message", (data) => {
+            io.to(data.roomCode).emit("receive-message", {
+                user: data.user,
+                text: data.message
+            });
+
         });
     });
 };

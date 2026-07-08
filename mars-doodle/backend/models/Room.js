@@ -50,7 +50,21 @@ const roomSchema = new mongoose.Schema(
         currentRound: {
             type: Number,
             default: 1
-        }
+        },
+        currentDrawer: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User"
+        },
+
+        currentWord: {
+            type: String,
+            default: ""
+        },
+
+        drawerIndex: {
+            type: Number,
+            default: 0
+        },
     },
     {
         timestamps: true

@@ -1,0 +1,22 @@
+module.exports = [
+    "Apple",
+    "Car",
+    "Dog",
+    "Tree",
+    "House",
+    "Elephant",
+    "Lion",
+    "Bottle",
+    "Laptop",
+    "Chair",
+    "Phone",
+    "Banana",
+    "Sun",
+    "Moon",
+    "Pizza",
+    "Clock",
+    "Train",
+    "Flower",
+    "Bridge",
+    "Rocket"
+];

@@ -1,0 +1,22 @@
+module.exports = [
+    "ROVER",
+    "OXYGEN",
+    "ASTRONAUT",
+    "CRATER",
+    "METEOR",
+    "SATELLITE",
+    "ROCKET",
+    "SPACE SUIT",
+    "MISSION",
+    "ALIEN",
+    "DRONE",
+    "SOLAR PANEL",
+    "HELMET",
+    "LASER",
+    "MARS BASE",
+    "EARTH",
+    "COMET",
+    "GALAXY",
+    "ORBIT",
+    "SPACECRAFT"
+];

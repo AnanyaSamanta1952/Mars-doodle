@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import socket from "../socket/socket";
 
 export default function Canvas({
+    isDrawer,
     color,
     brushSize,
     eraser
@@ -10,6 +11,7 @@ export default function Canvas({
     const [drawing, setDrawing] = useState(false);
     useEffect(() => {
         const canvas = canvasRef.current;
+        if (!canvas) return;
         const ctx = canvas.getContext("2d");
         ctx.lineWidth = brushSize;
         ctx.lineCap = "round";
@@ -29,9 +31,10 @@ export default function Canvas({
             socket.off("drawing");
             socket.off("canvas-cleared");
         };
-    }, []);
+    }, [color, brushSize, eraser]);
 
     const startDrawing = (e) => {
+        if (!isDrawer) return;
         setDrawing(true);
 
         const canvas = canvasRef.current;
@@ -53,6 +56,7 @@ export default function Canvas({
     };
 
     const draw = (e) => {
+        if (!drawing) return;
         if (!drawing) return;
         const canvas = canvasRef.current;
         const ctx = canvas.getContext("2d");
@@ -86,15 +90,17 @@ export default function Canvas({
     return (
         <canvas
             ref={canvasRef}
-            width={900}
-            height={600}
+            width={800}
+            height={550}
             onMouseDown={startDrawing}
             onMouseUp={stopDrawing}
             onMouseLeave={stopDrawing}
             onMouseMove={draw}
             style={{
-                border: "2px solid black",
-                background: "white"
+                border: "3px solid #333",
+                borderRadius: "12px",
+                background: "#fff",
+                boxShadow: "0 5px 20px rgba(0,0,0,.15)"
             }}
         />
     );

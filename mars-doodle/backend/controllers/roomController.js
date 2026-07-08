@@ -1,5 +1,6 @@
 const Room = require("../models/Room");
 const generateRoomCode = require("../utils/generateRoomCode");
+const words = require("../data/words");
 
 exports.createRoom = async (req, res) => {
     try {
@@ -62,16 +63,32 @@ exports.joinRoom = async (req, res) => {
 
 exports.getRoom = async (req, res) => {
     try {
+
         const room = await Room.findOne({
             roomCode: req.params.roomCode
-        }).populate("players.user", "username email");
+        })
+            .populate("players.user", "username email")
+            .populate("currentDrawer", "username");
 
         if (!room) {
             return res.status(404).json({
                 message: "Room not found"
             });
         }
-        res.json(room);
+
+        const roomData = room.toObject();
+
+        const userId = req.user.id;
+
+        if (
+            room.currentDrawer &&
+            room.currentDrawer._id.toString() !== userId
+        ) {
+            roomData.currentWord =
+                "_ ".repeat(room.currentWord.length);
+        }
+
+        res.json(roomData);
 
     } catch (err) {
         res.status(500).json({
@@ -82,10 +99,9 @@ exports.getRoom = async (req, res) => {
 
 exports.startGame = async (req, res) => {
     try {
+        console.log("Start Game API called");
         const { roomCode } = req.body;
-
         const room = await Room.findOne({ roomCode });
-
         if (!room) {
             return res.status(404).json({
                 message: "Room not found"
@@ -100,10 +116,26 @@ exports.startGame = async (req, res) => {
         }
 
         room.gameStarted = true;
+
+        // Pick a random player
+        const randomIndex = Math.floor(
+            Math.random() * room.players.length
+        );
+
+        room.currentDrawer = room.players[randomIndex].user;
+        const randomWord =
+            words[Math.floor(Math.random() * words.length)];
+
+        room.currentWord = randomWord;
         await room.save();
 
-        req.app.get("io").to(roomCode).emit("game-started");
-
+        console.log("Emitting game-started for room:", roomCode);
+        req.app.get("io").to(roomCode).emit(
+            "game-started",
+            {
+                roomCode
+            }
+        );
         res.json({
             message: "Game started"
         });

@@ -12,7 +12,7 @@ const {
 
 router.post("/create", authMiddleware, createRoom);
 router.post("/join", authMiddleware, joinRoom);
-router.get("/:roomCode", getRoom);
+router.get("/:roomCode", authMiddleware, getRoom);
 router.post("/start", authMiddleware, startGame);
 
 module.exports = router;

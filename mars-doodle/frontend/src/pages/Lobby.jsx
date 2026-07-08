@@ -12,16 +12,16 @@ export default function Lobby() {
 
     useEffect(() => {
         loadRoom();
-
         socket.emit("join-room", roomCode);
-
         socket.on("player-joined", () => {
             loadRoom();
         });
 
         socket.on("game-started", () => {
+            console.log("Game Started Event Received");
             navigate("/game");
         });
+
 
         return () => {
             socket.off("player-joined");
@@ -32,7 +32,13 @@ export default function Lobby() {
     const loadRoom = async () => {
         try {
             const res = await axios.get(
-                `http://localhost:5000/api/room/${roomCode}`
+                `http://localhost:5000/api/room/${roomCode}`,
+                {
+                    headers: {
+                        Authorization:
+                            "Bearer " + localStorage.getItem("token")
+                    }
+                }
             );
 
             setRoom(res.data);
@@ -58,7 +64,6 @@ export default function Lobby() {
                     }
                 }
             );
-
         } catch (err) {
             alert(err.response?.data?.message || "Error");
         }
