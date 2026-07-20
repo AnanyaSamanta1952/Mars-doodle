@@ -15,6 +15,7 @@ export default function Game() {
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([]);
     const [currentWord, setCurrentWord] = useState("");
+    const [players, setPlayers] = useState([]);
 
     useEffect(() => {
         const roomCode = localStorage.getItem("roomCode");
@@ -23,8 +24,39 @@ export default function Game() {
         socket.on("receive-message", (msg) => {
             setMessages(prev => [...prev, msg]);
         });
+        socket.on("correct-guess", (data) => {
+            setPlayers(data.scores);
+            setMessages(prev => [
+                ...prev,
+                {
+                    user: "🎉",
+                    text: `${data.winner} guessed "${data.word}" correctly!`
+                }
+            ]);
+
+            setTimeout(() => {
+                loadGame();
+                clearCanvas();
+            }, 3000);
+
+        });
+        socket.on("start-next-round", () => {
+            socket.emit(
+                "next-round",
+                localStorage.getItem("roomCode")
+            );
+        });
+        socket.on("new-round", () => {
+            clearCanvas();
+            loadGame();
+            setMessages([]);
+        });
         return () => {
             socket.off("receive-message");
+            socket.off("correct-guess");
+            socket.off("correct-guess");
+            socket.off("start-next-round");
+            socket.off("new-round");
         };
     }, []);
 
@@ -53,6 +85,7 @@ export default function Game() {
             }
 
             setCurrentWord(res.data.currentWord);
+            setPlayers(res.data.players);
         } catch (err) {
             console.log(err);
         }
@@ -69,10 +102,13 @@ export default function Game() {
     };
     const sendMessage = () => {
         if (!message.trim()) return;
+        const user = JSON.parse(localStorage.getItem("user"));
+        console.log(user);
         socket.emit("chat-message", {
             roomCode: localStorage.getItem("roomCode"),
             message,
-            user: JSON.parse(localStorage.getItem("user")).username
+            user: user.username,
+            userId: user.id
         });
         setMessage("");
     };
@@ -141,6 +177,7 @@ export default function Game() {
                         alignItems: "flex-start"
                     }}
                 >
+
                     {/* Canvas */}
                     <div style={{ flex: 3 }}>
                         <Canvas
@@ -149,6 +186,37 @@ export default function Game() {
                             brushSize={brushSize}
                             eraser={eraser}
                         />
+                    </div>
+
+                    <div
+                        style={{
+                            width: "220px",
+                            background: "#fafafa",
+                            border: "1px solid #ddd",
+                            borderRadius: "12px",
+                            padding: "15px"
+                        }}
+                    >
+                        <h3>🏆 Scoreboard</h3>
+
+                        {players
+                            .slice()
+                            .sort((a, b) => b.score - a.score)
+                            .map((player, index) => (
+                                <p
+                                    key={player.user._id}
+                                    style={{
+                                        display: "flex",
+                                        justifyContent: "space-between"
+                                    }}
+                                >
+                                    <span>
+                                        {index + 1}. {player.user.username}
+                                    </span>
+
+                                    <b>{player.score}</b>
+                                </p>
+                            ))}
                     </div>
 
                     {/* Chat */}

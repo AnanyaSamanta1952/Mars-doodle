@@ -117,16 +117,13 @@ exports.startGame = async (req, res) => {
 
         room.gameStarted = true;
 
-        // Pick a random player
-        const randomIndex = Math.floor(
-            Math.random() * room.players.length
-        );
-
-        room.currentDrawer = room.players[randomIndex].user;
+        room.drawerIndex = 0;
+        room.currentDrawer = room.players[0].user;
         const randomWord =
             words[Math.floor(Math.random() * words.length)];
 
         room.currentWord = randomWord;
+        room.roundEnded = false;
         await room.save();
 
         console.log("Emitting game-started for room:", roomCode);

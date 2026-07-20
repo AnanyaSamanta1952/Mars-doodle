@@ -25,6 +25,11 @@ const roomSchema = new mongoose.Schema(
                     default: 0
                 },
 
+                guessedCorrectly: {
+                    type: Boolean,
+                    default: false
+                },
+
                 isDrawer: {
                     type: Boolean,
                     default: false
@@ -38,7 +43,8 @@ const roomSchema = new mongoose.Schema(
                 joinedAt: {
                     type: Date,
                     default: Date.now
-                }
+                },
+
             }
         ],
 
@@ -59,6 +65,11 @@ const roomSchema = new mongoose.Schema(
         currentWord: {
             type: String,
             default: ""
+        },
+
+        roundEnded: {
+            type: Boolean,
+            default: false
         },
 
         drawerIndex: {
