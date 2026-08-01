@@ -87,42 +87,29 @@ module.exports = (io) => {
                     scores: room.players,
                     word: room.currentWord
                 });
-                setTimeout(() => {
-                    io.to(data.roomCode).emit(
-                        "start-next-round"
-                    );
+                setTimeout(async () => {
+
+                    const room = await Room.findOne({
+                        roomCode: data.roomCode
+                    });
+
+                    if (!room) return;
+
+                    room.drawerIndex =
+                        (room.drawerIndex + 1) % room.players.length;
+
+                    room.currentDrawer =
+                        room.players[room.drawerIndex].user;
+                    room.currentWord =
+                        words[Math.floor(Math.random() * words.length)];
+                    room.roundEnded = false;
+                    room.players.forEach(player => {
+                        player.guessedCorrectly = false;
+                    });
+                    await room.save();
+                    io.to(data.roomCode).emit("new-round");
                 }, 3000);
             }
-        });
-
-        socket.on("next-round", async (roomCode) => {
-
-            const room = await Room.findOne({ roomCode });
-
-            if (!room) return;
-
-            // Next drawer
-            room.drawerIndex =
-                (room.drawerIndex + 1) % room.players.length;
-
-            room.currentDrawer =
-                room.players[room.drawerIndex].user;
-
-            // New word
-            room.currentWord =
-                words[Math.floor(Math.random() * words.length)];
-
-            // Reset round
-            room.roundEnded = false;
-
-            // Reset guessedCorrectly
-            room.players.forEach(player => {
-                player.guessedCorrectly = false;
-            });
-
-            await room.save();
-
-            io.to(roomCode).emit("new-round");
         });
     });
 };

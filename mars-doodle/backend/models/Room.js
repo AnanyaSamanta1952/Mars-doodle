@@ -67,6 +67,11 @@ const roomSchema = new mongoose.Schema(
             default: ""
         },
 
+        roundChanging: {
+            type: Boolean,
+            default: false
+        },
+        
         roundEnded: {
             type: Boolean,
             default: false

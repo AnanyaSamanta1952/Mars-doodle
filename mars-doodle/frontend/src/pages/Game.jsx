@@ -16,6 +16,7 @@ export default function Game() {
     const [messages, setMessages] = useState([]);
     const [currentWord, setCurrentWord] = useState("");
     const [players, setPlayers] = useState([]);
+    const [timeLeft, setTimeLeft] = useState(60);
 
     useEffect(() => {
         const roomCode = localStorage.getItem("roomCode");
@@ -40,12 +41,6 @@ export default function Game() {
             }, 3000);
 
         });
-        socket.on("start-next-round", () => {
-            socket.emit(
-                "next-round",
-                localStorage.getItem("roomCode")
-            );
-        });
         socket.on("new-round", () => {
             clearCanvas();
             loadGame();
@@ -55,10 +50,38 @@ export default function Game() {
             socket.off("receive-message");
             socket.off("correct-guess");
             socket.off("correct-guess");
-            socket.off("start-next-round");
             socket.off("new-round");
         };
     }, []);
+
+    useEffect(() => {
+        if (!currentWord) return;
+
+        setTimeLeft(60);
+
+        const timer = setInterval(() => {
+            setTimeLeft(prev => {
+                if (prev <= 1) {
+                    clearInterval(timer);
+
+                    // ONLY drawer tells server that time is over
+                    if (isDrawer) {
+                        socket.emit(
+                            "next-round",
+                            localStorage.getItem("roomCode")
+                        );
+                    }
+
+                    return 0;
+                }
+
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(timer);
+
+    }, [currentWord, isDrawer]);
 
     const loadGame = async () => {
         try {
@@ -151,6 +174,15 @@ export default function Game() {
                         ? `🎨 Draw : ${currentWord}`
                         : `Guess : ${currentWord}`}
                 </h2>
+                <h3
+                    style={{
+                        textAlign: "center",
+                        color: "#e53935",
+                        marginBottom: "20px"
+                    }}
+                >
+                    ⏳ {timeLeft}s
+                </h3>
 
                 <div
                     style={{
